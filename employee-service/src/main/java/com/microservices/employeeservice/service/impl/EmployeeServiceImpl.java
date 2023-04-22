@@ -5,6 +5,7 @@ import com.microservices.employeeservice.dto.DepartmentDto;
 import com.microservices.employeeservice.dto.EmployeeDto;
 import com.microservices.employeeservice.entity.Employee;
 import com.microservices.employeeservice.repository.EmployeeRepository;
+import com.microservices.employeeservice.service.APIClient;
 import com.microservices.employeeservice.service.EmployeeService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,8 @@ import java.util.Optional;
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
-    private final WebClient webClient;
+    //private final WebClient webClient;
+    private final APIClient apiClient;
     @Override
     public EmployeeDto saveEmployee(EmployeeDto employeeDto) {
         Employee employee = new Employee(
@@ -48,11 +50,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         if(!employeeO.isEmpty()){
             Employee employee = employeeO.get();
             //Calling department-service over HTTP(Sync calll)
-            DepartmentDto departmentDto = webClient.get()
-                    .uri("http://localhost:8080/api/departments/find/"+employee.getDepartmentCode())
-                    .retrieve()
-                    .bodyToMono(DepartmentDto.class)
-                    .block();
+//            DepartmentDto departmentDto = webClient.get()
+//                    .uri("http://localhost:8080/api/departments/find/"+employee.getDepartmentCode())
+//                    .retrieve()
+//                    .bodyToMono(DepartmentDto.class)
+//                    .block();
+            //Calling department-service through Feign API client
+            DepartmentDto departmentDto = apiClient.getDepartment(employee.getDepartmentCode());
 
             EmployeeDto employeeDto = new EmployeeDto(
                     employee.getId(),

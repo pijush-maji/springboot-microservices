@@ -20,4 +20,5 @@ public class Employee {
     @NonNull
     @Indexed(unique = true)
     private String email;
+    private String departmentCode;
 }

@@ -4,6 +4,7 @@ import com.microservices.employeeservice.dto.APIResponse;
 import com.microservices.employeeservice.dto.DepartmentDto;
 import com.microservices.employeeservice.dto.EmployeeDto;
 import com.microservices.employeeservice.entity.Employee;
+import com.microservices.employeeservice.mapper.EmployeeMapper;
 import com.microservices.employeeservice.repository.EmployeeRepository;
 import com.microservices.employeeservice.service.APIClient;
 import com.microservices.employeeservice.service.EmployeeService;
@@ -23,23 +24,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final APIClient apiClient;
     @Override
     public EmployeeDto saveEmployee(EmployeeDto employeeDto) {
-        Employee employee = new Employee(
-                employeeDto.getId(),
-                employeeDto.getFirstName(),
-                employeeDto.getLastName(),
-                employeeDto.getEmail(),
-                employeeDto.getDepartmentCode()
-        );
+        Employee employee = EmployeeMapper.mapToEmployee(employeeDto);
         Employee savedEmployee = employeeRepository.save(employee);
         EmployeeDto savedEmployeeDto = null ;
         if(savedEmployee!=null){
-            savedEmployeeDto = new EmployeeDto(
-                    savedEmployee.getId(),
-                    savedEmployee.getFirstName(),
-                    savedEmployee.getLastName(),
-                    savedEmployee.getEmail(),
-                    savedEmployee.getDepartmentCode()
-            );
+            savedEmployeeDto = EmployeeMapper.mapToEmployeeDto(savedEmployee);
         }
         return savedEmployeeDto;
     }
@@ -60,13 +49,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             //Calling department-service through Feign API client
             DepartmentDto departmentDto = apiClient.getDepartment(employee.getDepartmentCode());
 
-            EmployeeDto employeeDto = new EmployeeDto(
-                    employee.getId(),
-                    employee.getFirstName(),
-                    employee.getLastName(),
-                    employee.getEmail(),
-                    employee.getDepartmentCode()
-            );
+            EmployeeDto employeeDto = EmployeeMapper.mapToEmployeeDto(employee);
             apiResponse = new APIResponse(employeeDto,departmentDto);
         }
         return apiResponse;
@@ -82,13 +65,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             departmentDto.setDepartmentName("Default");
             departmentDto.setDepartmentDescription("Default circuit breaker response");
             departmentDto.setDepartmentCode("DFLT");
-            EmployeeDto employeeDto = new EmployeeDto(
-                    employee.getId(),
-                    employee.getFirstName(),
-                    employee.getLastName(),
-                    employee.getEmail(),
-                    employee.getDepartmentCode()
-            );
+            EmployeeDto employeeDto = EmployeeMapper.mapToEmployeeDto(employee);
             apiResponse = new APIResponse(employeeDto,departmentDto);
         }
         return apiResponse;

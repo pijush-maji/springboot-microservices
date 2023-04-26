@@ -2,6 +2,7 @@ package com.microservices.departmentservice.service.impl;
 
 import com.microservices.departmentservice.dto.DepartmentDto;
 import com.microservices.departmentservice.entity.Department;
+import com.microservices.departmentservice.mapper.DepartmentMapper;
 import com.microservices.departmentservice.repository.DepartmentRepository;
 import com.microservices.departmentservice.service.DepartmentService;
 import lombok.AllArgsConstructor;
@@ -16,20 +17,10 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public DepartmentDto saveDepartment(DepartmentDto departmentDto) {
-        Department department = new Department(
-                departmentDto.getId(),
-                departmentDto.getDepartmentName(),
-                departmentDto.getDepartmentDescription(),
-                departmentDto.getDepartmentCode()
-        );
+        Department department = DepartmentMapper.mapToDepartment(departmentDto);
 
         Department savedDepartment = departmentRepository.save(department);
-        DepartmentDto saveDepartmentDto = new DepartmentDto(
-                savedDepartment.getId(),
-                savedDepartment.getDepartmentName(),
-                savedDepartment.getDepartmentDescription(),
-                savedDepartment.getDepartmentCode()
-        );
+        DepartmentDto saveDepartmentDto = DepartmentMapper.mapToDepartmentDto(savedDepartment);
         return saveDepartmentDto;
     }
 
@@ -38,12 +29,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         Department department = departmentRepository.findByDepartmentCode(departmentCode);
         DepartmentDto departmentDto = null;
         if (department != null) {
-            departmentDto = new DepartmentDto(
-              department.getId(),
-              department.getDepartmentName(),
-              department.getDepartmentDescription(),
-              department.getDepartmentCode()
-            );
+            departmentDto = DepartmentMapper.mapToDepartmentDto(department);
         }
         return departmentDto;
     }

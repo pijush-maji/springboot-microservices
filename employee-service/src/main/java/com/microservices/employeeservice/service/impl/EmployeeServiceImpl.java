@@ -7,6 +7,7 @@ import com.microservices.employeeservice.entity.Employee;
 import com.microservices.employeeservice.repository.EmployeeRepository;
 import com.microservices.employeeservice.service.APIClient;
 import com.microservices.employeeservice.service.EmployeeService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -43,6 +44,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         return savedEmployeeDto;
     }
 
+    @CircuitBreaker(name="${spring.application.name}", fallbackMethod = "getDefaultDepartment")
     @Override
     public APIResponse getEmployeeById(String id) {
         Optional<Employee> employeeO = employeeRepository.findById(id);
@@ -58,6 +60,28 @@ public class EmployeeServiceImpl implements EmployeeService {
             //Calling department-service through Feign API client
             DepartmentDto departmentDto = apiClient.getDepartment(employee.getDepartmentCode());
 
+            EmployeeDto employeeDto = new EmployeeDto(
+                    employee.getId(),
+                    employee.getFirstName(),
+                    employee.getLastName(),
+                    employee.getEmail(),
+                    employee.getDepartmentCode()
+            );
+            apiResponse = new APIResponse(employeeDto,departmentDto);
+        }
+        return apiResponse;
+    }
+
+    public APIResponse getDefaultDepartment(String id, Exception exception) {
+        Optional<Employee> employeeO = employeeRepository.findById(id);
+        APIResponse apiResponse = null;
+        if(!employeeO.isEmpty()){
+            Employee employee = employeeO.get();
+
+            DepartmentDto departmentDto = new DepartmentDto();
+            departmentDto.setDepartmentName("Default");
+            departmentDto.setDepartmentDescription("Default circuit breaker response");
+            departmentDto.setDepartmentCode("DFLT");
             EmployeeDto employeeDto = new EmployeeDto(
                     employee.getId(),
                     employee.getFirstName(),

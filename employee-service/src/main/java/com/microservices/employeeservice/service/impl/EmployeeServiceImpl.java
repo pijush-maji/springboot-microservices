@@ -3,6 +3,7 @@ package com.microservices.employeeservice.service.impl;
 import com.microservices.employeeservice.dto.APIResponse;
 import com.microservices.employeeservice.dto.DepartmentDto;
 import com.microservices.employeeservice.dto.EmployeeDto;
+import com.microservices.employeeservice.dto.OrganizationDto;
 import com.microservices.employeeservice.entity.Employee;
 import com.microservices.employeeservice.mapper.EmployeeMapper;
 import com.microservices.employeeservice.repository.EmployeeRepository;
@@ -20,7 +21,7 @@ import java.util.Optional;
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
-    //private final WebClient webClient;
+    private final WebClient webClient;
     private final APIClient apiClient;
     @Override
     public EmployeeDto saveEmployee(EmployeeDto employeeDto) {
@@ -48,9 +49,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 //                    .block();
             //Calling department-service through Feign API client
             DepartmentDto departmentDto = apiClient.getDepartment(employee.getDepartmentCode());
+            OrganizationDto organizationDto = webClient.get()
+                    .uri("http://localhost:8083/api/organizations/find/" + employee.getOrganizationCode())
+                    .retrieve()
+                    .bodyToMono(OrganizationDto.class)
+                    .block();
 
             EmployeeDto employeeDto = EmployeeMapper.mapToEmployeeDto(employee);
-            apiResponse = new APIResponse(employeeDto,departmentDto);
+            apiResponse = new APIResponse(employeeDto,departmentDto,organizationDto);
         }
         return apiResponse;
     }
@@ -66,7 +72,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             departmentDto.setDepartmentDescription("Default circuit breaker response");
             departmentDto.setDepartmentCode("DFLT");
             EmployeeDto employeeDto = EmployeeMapper.mapToEmployeeDto(employee);
-            apiResponse = new APIResponse(employeeDto,departmentDto);
+            apiResponse = new APIResponse(employeeDto,departmentDto,null);
         }
         return apiResponse;
     }

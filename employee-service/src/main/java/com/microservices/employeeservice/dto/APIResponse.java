@@ -8,4 +8,5 @@ import lombok.Data;
 public class APIResponse {
     private EmployeeDto employee;
     private DepartmentDto department;
+    private OrganizationDto organization;
 }

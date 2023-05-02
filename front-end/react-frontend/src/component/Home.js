@@ -2,6 +2,8 @@ import './Home.css';
 import { useState } from "react";
 import Department from "../service/Department";
 import { Container, Row, Col } from "react-bootstrap";
+import Organization from '../service/Organization';
+import Employee from '../service/Employee';
 
 
 
@@ -10,6 +12,10 @@ const Home = () => {
     const [deptCd, setDeptCd] = useState('')
     const [orgCd, setOrgCd] = useState('')
     const [empCd, setEmpCd] = useState('')
+
+    const [deptData, setDeptData] = useState()
+    const [orgData, setOrgData] = useState()
+    const [empData, setEmpData] = useState()
 
     const handleDeptCdChange = (e) => {
         setDeptCd(e.target.value);
@@ -25,7 +31,7 @@ const Home = () => {
         e.preventDefault();        
         Department.getDepartment(deptCd).then(
             (response) => {
-                console.log(response)
+                setDeptData(response.data)
             }
         ).catch(
             (err) => {
@@ -35,9 +41,9 @@ const Home = () => {
     }
     const getOrganization = (e) => {
         e.preventDefault();
-        Department.getDepartment(orgCd).then(
+        Organization.getOrganization(orgCd).then(
             (response) => {
-                console.log(response)
+                setOrgData(response.data)
             }
         ).catch(
             (err) => {
@@ -47,9 +53,10 @@ const Home = () => {
     }
     const getEmployee = (e) => {
         e.preventDefault();
-        Department.getDepartment(empCd).then(
+        Employee.getEmployee(empCd).then(
             (response) => {
-                console.log(response)
+
+                setEmpData(response.data)
             }
         ).catch(
             (err) => {
@@ -72,7 +79,10 @@ const Home = () => {
                                 </div>
                                 <div className="result-box mt-3">
                                     <div>
-                                        result
+                                        { deptData!==undefined && 
+                                        deptData !==null &&
+                                            deptData.departmentName
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -86,7 +96,10 @@ const Home = () => {
                                 </div>
                                 <div className="result-box mt-3">
                                     <div>
-                                        result
+                                    { orgData!==undefined && 
+                                        orgData !==null &&
+                                            orgData.organizationName
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -100,7 +113,10 @@ const Home = () => {
                                 </div>
                                 <div className="result-box mt-3">
                                     <div>
-                                        result
+                                    { empData!==undefined && 
+                                        empData !==null &&
+                                            empData.employee.firstName 
+                                        }
                                     </div>
                                 </div>
                             </div>
